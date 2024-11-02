@@ -4,7 +4,6 @@ from PyPDF2 import PdfReader
 from datasets import Dataset
 from transformers import AutoTokenizer
 
-
 # Função para extrair texto de um PDF
 def extract_text_from_pdf(pdf_path):
     text = []

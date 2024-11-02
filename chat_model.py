@@ -2,7 +2,7 @@ from transformers import T5Tokenizer, T5ForConditionalGeneration
 import torch
 
 # Caminho para o modelo
-model_path = "R:/Udemy_Study/LLM_Chatbot/meu_modelo_treinado/model.safetensor"  # Ajuste conforme necessário
+model_path = "R:/Udemy_Study/LLM_Train/meu_modelo_treinado/model.safetensor"  # Ajuste conforme necessário
 
 # Carregar o tokenizer
 tokenizer = T5Tokenizer.from_pretrained(

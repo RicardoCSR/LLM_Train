@@ -3,12 +3,15 @@ import os
 import pandas as pd
 from PyPDF2 import PdfReader
 from datasets import Dataset
-from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
+from transformers import AutoTokenizer, AutoModelForCausalLM
+from transformers import pipeline
 import torch
 from datetime import datetime
 
 # ----------------------- SETTING --------------------------
-main_model = "google/gemma-2-9b-it"  # GEMMA-2 para tokenização e interpretação de dados
+# os.environ["TRANSFORMERS_CACHE"] = "R:/LLM/Models"  # VALIDAR
+
+main_model = "google/gemma-2-9b"  # GEMMA-2 para tokenização e interpretação de dados
 verification_model = "google/flan-t5-large"  # Modelo Flan-T5 para análise de verificação
 file_folder = r"C:\Users\Ricardo\Desktop\Manual RD"     # Endereço local da pasta com arquivos
 max_length = 512    # Tamanho dos Tokenizer

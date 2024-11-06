@@ -5,15 +5,18 @@ from PyPDF2 import PdfReader
 from datasets import Dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from transformers import pipeline
+from transformers import AutoModel
 import torch
 from datetime import datetime
+from huggingface_hub import HfApi
 
 # ----------------------- SETTING --------------------------
-# os.environ["TRANSFORMERS_CACHE"] = "R:/LLM/Models"  # VALIDAR
+os.environ["PYTORCH_TRANSFORMERS_CACHE"] = "R:/LLM/Models"  # Local de cache dos modelos hf
+access_token = "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"
 
-main_model = "google/gemma-2-9b"  # GEMMA-2 para tokenização e interpretação de dados
-verification_model = "google/flan-t5-large"  # Modelo Flan-T5 para análise de verificação
-file_folder = r"C:\Users\Ricardo\Desktop\Manual RD"     # Endereço local da pasta com arquivos
+main_model = "google/gemma-2-9b"  # Modelo para tokenização e interpretação de dados
+verification_model = "google/flan-t5-large"  # Modelo para análise de verificação
+file_folder = r"D:\Manual"  #"C:\Users\Ricardo\Desktop\Manual RD"     # Endereço local da pasta com arquivos
 max_length = 512    # Tamanho dos Tokenizer
 test_size = 0.2     # Porcentagem de dados utilizados para Análise de Verificação
 
@@ -99,6 +102,8 @@ def process_text_with_llm(text, columns=None):
     return product_data
 
 # ----------------------- MAIN --------------------------
+api = HfApi(token=access_token)
+
 print("Start Loading Files =", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
 all_products = []

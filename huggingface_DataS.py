@@ -14,10 +14,10 @@ from datetime import datetime
 from huggingface_hub import HfApi, hf_hub_download
 
 # ----------------------- SETTING --------------------------
-quantization_config = BitsAndBytesConfig(load_in_4bit=False)
+quantization_config = BitsAndBytesConfig(load_in_4bit=True)
 access_token = "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"  # Token de acesso da Huggingface
-main_model = "google/gemma-2-2b"  # Modelo para tokenização e interpretação de dados
-verification_model = "google/gemma-2-2b"  # Modelo para análise de verificação
+main_model = "meta-llama/Llama-3.2-1B"  # Modelo para tokenização e interpretação de dados
+verification_model = "meta-llama/Llama-3.2-1B"  # Modelo para análise de verificação
 file_folder = r"C:\Users\Ricardo\Desktop\Manual RD"     # Endereço local da pasta com arquivos
 max_length = 512    # Tamanho dos Tokenizer
 test_size = 0.2     # Porcentagem de dados utilizados para Análise de Verificação

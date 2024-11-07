@@ -1,24 +1,29 @@
 # ----------------------- LIBRARY --------------------------
 import os
+path_to_model = "R:/LLM Models"
+os.environ["TRANSFORMERS_CACHE"] = path_to_model  # Local de cache dos modelos hf
+print(f"Modelo salvo em: {path_to_model}")
+#TRANSFORMERS_CACHE sera descontinuado na v5 trocar para HF_HOME
+
 import pandas as pd
 from PyPDF2 import PdfReader
 from datasets import Dataset
-from transformers import AutoTokenizer, AutoModelForCausalLM
-from transformers import pipeline
-from transformers import AutoModel
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline, AutoModel, BitsAndBytesConfig
 import torch
 from datetime import datetime
-from huggingface_hub import HfApi
+from huggingface_hub import HfApi, hf_hub_download
 
 # ----------------------- SETTING --------------------------
-os.environ["PYTORCH_TRANSFORMERS_CACHE"] = "R:/LLM/Models"  # Local de cache dos modelos hf
-access_token = "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"
-
-main_model = "google/gemma-2-9b"  # Modelo para tokenização e interpretação de dados
-verification_model = "google/flan-t5-large"  # Modelo para análise de verificação
-file_folder = r"D:\Manual"  #"C:\Users\Ricardo\Desktop\Manual RD"     # Endereço local da pasta com arquivos
+quantization_config = BitsAndBytesConfig(load_in_4bit=False)
+access_token = "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"  # Token de acesso da Huggingface
+main_model = "google/gemma-2-2b"  # Modelo para tokenização e interpretação de dados
+verification_model = "google/gemma-2-2b"  # Modelo para análise de verificação
+file_folder = r"C:\Users\Ricardo\Desktop\Manual RD"     # Endereço local da pasta com arquivos
 max_length = 512    # Tamanho dos Tokenizer
 test_size = 0.2     # Porcentagem de dados utilizados para Análise de Verificação
+hardware_device = 0
+# 0 = GPU
+# 1 = CPU
 
 custom_column = [     # Colunas para Dataset
     "Nome do Produto",
@@ -69,8 +74,8 @@ def verify_and_correct(text, model1_output, model2):
 # ----------------------- FUNÇÃO PARA PROCESSAR TEXTO COM LLM --------------------------
 def process_text_with_llm(text, columns=None):
     # Inicializar pipelines dos modelos
-    llm_pipeline_1 = pipeline("text-generation", model=main_model, tokenizer=main_model)
-    llm_pipeline_2 = pipeline("text-generation", model=verification_model, tokenizer=verification_model)
+    llm_pipeline_1 = pipeline("text-generation", model=main_model, tokenizer=main_model, device = hardware_device)
+    llm_pipeline_2 = pipeline("text-generation", model=verification_model, tokenizer=verification_model, device = hardware_device)
 
     if columns is None:
         # Solicitar ao LLM a estrutura ideal de colunas
@@ -85,7 +90,7 @@ def process_text_with_llm(text, columns=None):
     Texto: {text}
     """
     # Modelo 1 faz a extração inicial
-    extracted_info = llm_pipeline_1(extraction_prompt, max_length=300)[0]["generated_text"]
+    extracted_info = llm_pipeline_1(extraction_prompt, max_new_tokens=300)[0]["generated_text"]
 
     # Converte o texto em um dicionário usando as colunas fornecidas ou sugeridas
     product_data = {}
@@ -103,6 +108,8 @@ def process_text_with_llm(text, columns=None):
 
 # ----------------------- MAIN --------------------------
 api = HfApi(token=access_token)
+device = "cuda" if torch.cuda.is_available() else "cpu"
+print(f"Model downloaded to: {path_to_model}")
 
 print("Start Loading Files =", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
@@ -135,7 +142,8 @@ dataset = Dataset.from_pandas(df)
 # Inicializar o tokenizer e o modelo
 print("Starting Tokenize Files =", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 tokenizer = AutoTokenizer.from_pretrained(main_model)
-model = AutoModelForCausalLM.from_pretrained(verification_model)
+model = AutoModelForCausalLM.from_pretrained(verification_model, tokenizer = tokenizer, max_new_tokens = 300)
+model.to(device)
 
 # Definir a função de pré-processamento
 def preprocess_function(examples):
@@ -167,6 +175,7 @@ print(train_dataset[0])
 
 print("Exemplo do conjunto de validação tokenizado:")
 print(eval_dataset[0])
+
 
 
 
